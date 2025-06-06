@@ -1,7 +1,11 @@
 const form = document.createElement("form");
 
 const pathParts = window.location.pathname.split("/");
-const postName = pathParts[pathParts.length - 2];
+let postName = pathParts[pathParts.length - 1];
+
+if (postName.length === 0 || !postName) {
+	postName = pathParts[pathParts.length - 2];
+}
 
 const url = `https://simple-comments.vercel.app/${postName}`;
 
