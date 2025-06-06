@@ -3,7 +3,7 @@ const form = document.createElement("form");
 const pathParts = window.location.pathname.split("/");
 const postName = pathParts[pathParts.length - 2];
 
-const url = `http://localhost:3000/${postName}`;
+const url = `https://simple-comments.vercel.app/${postName}`;
 
 form.classList.add("simple-comments-form");
 
