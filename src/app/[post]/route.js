@@ -20,12 +20,15 @@ export async function GET(request, { params }) {
 	const comments = await sql.query("SELECT * FROM comments WHERE post = $1", [
 		post,
 	]);
+	comments.reverse();
 	return new NextResponse(
-		`
-        <ul class="simple-comments">
-            ${comments.map((c) => `<li><p>${c.username}:</p><p>${c.comment}</p></li>`).join("")}
+		`<ul class="simple-comments">
+            ${comments.map((c) => `<li><p>${c.username} - ${c.createddate.toUTCString()}:</p><p>${c.comment}</p></li>`).join("")}
         </ul>`,
-		{ headers: { "content-type": "text/html" }, status: 200 },
+		{
+			headers: { "content-type": "text/html", ...allowCORSHeaders },
+			status: 200,
+		},
 	);
 }
 
@@ -38,6 +41,13 @@ export async function POST(request, { params }) {
 	const { post } = await params;
 	const username = formData.get("username");
 	const comment = formData.get("comment");
+
+	if (!username || !comment) {
+		return new NextResponse("Missing fields", {
+			status: 400,
+			headers: allowCORSHeaders,
+		});
+	}
 
 	const sql = neon(process.env.DATABASE_URL);
 

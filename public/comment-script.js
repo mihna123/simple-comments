@@ -9,24 +9,47 @@ form.classList.add("simple-comments-form");
 
 form.innerHTML = `
     <label for="username">Username</label>
-    <input type="text" name="username"/>
+    <br/>
+    <input required type="text" name="username"/>
+    <br/>
     <label for="comment">Comment</label>
-    <input type="text" name="comment"/>
+    <br/>
+    <textarea required cols="50" name="comment"></textarea>
+    <br/>
     <button type="submit">Post comment</button>
 `;
+
+function htmlToNode(html) {
+	const template = document.createElement("template");
+	template.innerHTML = html;
+	return template.content.firstChild;
+}
+
+async function getComments() {
+	const res = await fetch(url);
+	const bodyHtml = await res.text();
+	if (!bodyHtml) return;
+	document.querySelector("ul.simple-comments")?.remove();
+	form.after(htmlToNode(bodyHtml));
+}
 
 /**
  * @param {SubmitEvent} e
  * */
 async function onSubmit(e) {
 	e.preventDefault();
-	const res = await fetch(url, {
-		method: "POST",
-		body: new FormData(e.target),
-	});
-	form.querySelectorAll("input").forEach((i) => (i.value = ""));
+	try {
+		await fetch(url, {
+			method: "POST",
+			body: new FormData(e.target),
+		});
+		form.querySelectorAll("input, textarea").forEach((i) => (i.value = ""));
+		await getComments();
+	} catch (e) {
+		console.error(e);
+	}
 }
 
 form.onsubmit = onSubmit;
-
 document.currentScript.after(form);
+getComments();
